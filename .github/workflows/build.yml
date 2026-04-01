@@ -7,15 +7,31 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-windows:
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install CMake
-        uses: jwlawson/actions-setup-cmake@v2
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -- -m
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShogiAI-windows
+          path: build/Release/ShogiAI.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -23,9 +39,8 @@ jobs:
       - name: Build
         run: cmake --build build --config Release -- -j 2
 
-      # ここが重要：成果物をアップロード
-      - name: Upload Artifact
+      - name: Upload Linux Binary
         uses: actions/upload-artifact@v4
         with:
-          name: ShogiAI
+          name: ShogiAI-linux
           path: build/ShogiAI
